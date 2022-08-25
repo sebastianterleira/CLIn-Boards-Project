@@ -1,15 +1,18 @@
 require "terminal-table"
+require "json"
+require_relative "boards"
 
 class ClinBoards
   def initialize(filename)
     @filename = filename
+    @boards = load_boards
   end
 
   def start
     welcome_message
     action = ""
     until action == "exit"
-      print_table(list:{}, title: "CLIn Boards", headings: ["ID", "Name", "Description", "List(#cards)"])
+      print_table(list:@boards, title: "CLIn Boards", headings: ["ID", "Name", "Description", "List(#cards)"])
       
       action, id = menu(["create", "show ID", "update ID", "delete ID", "exit" ]) 
 
@@ -43,8 +46,13 @@ class ClinBoards
     table = Terminal::Table.new
     table.title = title
     table.headings = headings
-    #table.rows = list.map(&:details)
+    table.rows = list.map(&:details)
     puts table
+  end
+
+  def load_boards
+    data = JSON.parse(File.read(@filename), symbolize_names: true)
+    data.map { |board_hash| Boards.new(**board_hash) }
   end
 
 end
