@@ -17,7 +17,7 @@ class ClinBoards
       action, id = menu(["create", "show ID", "update ID", "delete ID", "exit" ]) 
 
       case action
-      when "create" then puts "Create Board" #create_playlist
+      when "create" then create_board(@boards)
       when "show" then puts "Show Board #{id}"  #update_playlist(id)
       when "update" then puts "Update Board #{id}"  #show_playlist(id)
       when "delete" then puts "Delete Board #{id}"  #delete_playlist(id)
@@ -26,7 +26,24 @@ class ClinBoards
         puts "Invalid action"
       end
     end
-    puts action
+    # puts action
+  end
+
+  private
+
+  def create_board(boards)
+    board_hash = board_form
+    new_board = Boards.new(**board_hash)
+    boards.push(new_board)
+    File.write(@filename, boards.to_json)
+  end
+
+  def board_form
+    print "Name: "
+    name = gets.chomp
+    print "Description: "
+    description = gets.chomp
+    { name: name, description: description }
   end
 
   def welcome_message
