@@ -1,5 +1,4 @@
 require "json"
-
 require_relative "lists"
 
 class Boards

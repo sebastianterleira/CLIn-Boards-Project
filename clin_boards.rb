@@ -26,7 +26,6 @@ class ClinBoards
         puts "Invalid action"
       end
     end
-    puts action
   end
 
   def welcome_message
