@@ -21,7 +21,7 @@ class ClinBoards
       when "show" then show_board(id)
       when "update" then update_board(id)
       when "delete" then delete_board(id)
-      when "exit" then puts "Goodbye!"
+      when "exit" then exit
       else
         puts "Invalid action"
       end
@@ -94,7 +94,7 @@ class ClinBoards
       when "update-list" then puts "update-list! #{arg}"
       when "delete-list" then puts "Udelete-list! #{arg}"
       when "create-card" then puts "create-card!"
-      when "checklist" then puts "create-card! #{arg}"
+      when "checklist" then show_checklist(arg, board)
       when "update-card" then puts "udate-card! #{arg}"
       when "delete-card" then puts "delete-card! #{arg}"
       else
@@ -130,6 +130,68 @@ class ClinBoards
   def save
     File.write(@filename, @boards.to_json)
   end
+
+  def show_checklist(id, board)
+    card = fetch_card(id, board)
+    action = ""
+    until action == "back"
+      
+      print_card(card)
+
+      action, id = menu(["Checklist options: ", ""],
+        [["add", "toggle INDEX", "delete INDEX"], ["back"]])
+
+      case action
+      when "add" then add_checklist(card)
+      when "toggle" then toggle_check(card, id)
+      when "delete" then delete_checklist(card, id)
+      else
+        puts "Invalid action" unless action == "back"
+      end
+    end
+  end
+
+  def fetch_card(id, board)
+    board.lists.each do |list|
+      card = list.cards.find { |c| c.id == id}
+      return card unless card.nil?
+    end
+  end
+
+  def print_card(card)
+    puts "Card: #{card.title}"
+    
+    card.checklist.each_with_index do |chk, i|
+      check = " "
+      check = "x" if chk[:completed]
+      puts "[#{check}] #{i + 1}. #{chk[:title]}"
+    end
+    puts "-" * 37
+  end
+
+  def add_checklist(card)
+    print "Title: "
+    title = gets.chomp
+    card.checklist.push({ title: title, completed: false })
+    save
+  end
+
+  def toggle_check(card, id)
+    card.checklist[id - 1][:completed] = !card.checklist[id - 1][:completed]
+    save
+  end
+
+  def delete_checklist(card, id)
+    card.checklist.delete(card.checklist[id - 1])
+    save
+  end
+
+  def exit
+    puts "#" * 36
+    puts "##{' ' * 3}Thanks for using CLIn Boards#{' ' * 3}#"
+    puts "#" * 36
+  end
+
 end
 
 filename = ARGV.shift
