@@ -23,7 +23,12 @@ class Boards
     lists.map { |list_hash| Lists.new(**list_hash) }
   end
 
+  def update(name:, description:)
+    @name = name unless name.empty?
+    @description = description unless description.empty?
+  end
+
   def to_json(_arg)
-    {id: @id, name: @name, description: @description, lists: @lists}.to_json
+    { name: @name, description:@description, id: @@id_count, lists: @lists}.to_json
   end
 end

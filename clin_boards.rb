@@ -19,8 +19,8 @@ class ClinBoards
       case action
       when "create" then create_board(@boards)
       when "show" then show_board(id)
-      when "update" then puts "Update Board #{id}"  #show_playlist(id)
-      when "delete" then puts "Delete Board #{id}"  #delete_playlist(id)
+      when "update" then update_board(id)
+      when "delete" then delete_board(id)
       when "exit" then puts "Goodbye!"
       else
         puts "Invalid action"
@@ -101,6 +101,34 @@ class ClinBoards
         puts "Invalid action" unless action == "back"
       end
     end
+  end
+  def delete_board(id)
+    board_selected=find_card(id)
+    @boards.delete(board_selected)
+    save
+  end
+
+  def update_board(id)
+    board_selected=find_card(id)
+    new_card_hash= board_form
+    board_selected.update(**new_card_hash)
+    save
+  end
+
+  def board_form
+    print "Name: "
+    name = gets.chomp
+    print "Description: "
+    description = gets.chomp
+    { name: name, description: description }
+  end
+
+  def find_card(id)
+    @boards.find { |e| e.id==id}
+  end
+
+  def save
+    File.write(@filename, @boards.to_json)
   end
 end
 
