@@ -14,7 +14,7 @@ class Boards
     @lists = load_lists(lists)
   end
 
-  def
+  def details
     lists = @lists.map { |list| "#{list.name}(#{list.cards.size})" }.join(", ")
     [@id, @name, @description, lists]
   end
