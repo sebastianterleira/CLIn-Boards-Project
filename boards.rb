@@ -7,7 +7,7 @@ class Boards
   @@id_count = 0
 
   def initialize(name:, description:, id: nil, lists: [])
-    @id = id || (@@id_count + 1)
+    @id = id ? id : @@id_count + 1
     @@id_count = @id
     @name = name
     @description = description
@@ -29,6 +29,6 @@ class Boards
   end
 
   def to_json(_arg)
-    { name: @name, description:@description, id: @@id_count, lists: @lists}.to_json
+    { name: @name, description:@description, id: @id, lists: @lists}.to_json
   end
 end

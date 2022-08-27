@@ -88,7 +88,6 @@ class ClinBoards
       action, arg = menu(["List options: ", "Card options: ", ""],
                          [["create-list", "update-list LISTNAME", "delete-list LISTNAME"],
                           ["create-card", "checklist ID", "update-card ID", "delete-card ID"], ["back"]])
-      list=find_list(arg.capitalize,board)
 
       case action
       when "create-list" then puts "create-list!"
@@ -96,7 +95,7 @@ class ClinBoards
       when "delete-list" then delete_list(arg,board)
       when "create-card" then puts "create-card!"
       when "checklist" then puts "create-card! #{arg}"
-      when "update-card" then puts "udate-card! #{arg}"
+      when "update-card" then update_card(arg,board)
       when "delete-card" then puts "delete-card! #{arg}"
       else
         puts "Invalid action" unless action == "back"
@@ -149,6 +148,42 @@ class ClinBoards
     print "Name: "
     new_name_list = gets.chomp
     {name: new_name_list}
+  end
+
+  def update_card(card_id,board)
+    list_input=list_form
+    list_selected=find_list(list_input,board)
+    new_card_details=card_details_form
+    card_selected=find_card(card_id,list_selected)
+    card_selected.update(**new_card_details)
+    save
+  end
+
+  def find_card(card_id,list)
+    list.cards.find { |c| c.id==card_id }
+  end
+
+  def list_form
+    puts "Select a list: "
+    puts "Todo | In Progress | Code Review | Done "
+    print "> "
+    list = gets.chomp.capitalize
+    { list: list }
+    p list
+  end
+
+  def card_details_form
+    print "Title: "
+    title = gets.chomp
+    print "Members: "
+    members = gets.chomp.split(",")
+    print "Labels: "
+    labels = gets.chomp.split(",")
+    print "Due date: "
+    due_date = gets.chomp
+    p members
+    p labels
+    { title: title, members:members, labels:labels, due_date: due_date }
   end
 
   def save
