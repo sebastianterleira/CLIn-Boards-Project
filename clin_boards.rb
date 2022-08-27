@@ -88,10 +88,11 @@ class ClinBoards
       action, arg = menu(["List options: ", "Card options: ", ""],
                          [["create-list", "update-list LISTNAME", "delete-list LISTNAME"],
                           ["create-card", "checklist ID", "update-card ID", "delete-card ID"], ["back"]])
+      list=find_list(arg.capitalize,board)
 
       case action
       when "create-list" then puts "create-list!"
-      when "update-list" then puts "update-list! #{arg}"
+      when "update-list" then update_list(arg,board)
       when "delete-list" then puts "Udelete-list! #{arg}"
       when "create-card" then puts "create-card!"
       when "checklist" then puts "create-card! #{arg}"
@@ -103,13 +104,13 @@ class ClinBoards
     end
   end
   def delete_board(id)
-    board_selected=find_card(id)
+    board_selected=find_board(id)
     @boards.delete(board_selected)
     save
   end
 
   def update_board(id)
-    board_selected=find_card(id)
+    board_selected=find_board(id)
     new_card_hash= board_form
     board_selected.update(**new_card_hash)
     save
@@ -123,12 +124,33 @@ class ClinBoards
     { name: name, description: description }
   end
 
-  def find_card(id)
+  def find_board(id)
     @boards.find { |e| e.id==id}
+  end
+
+  def update_list(list_name,board)
+    list_selected=find_list(list_name.capitalize,board)
+    new_name_list=list_form
+    list_selected.update(**new_name_list)
+    save
+  end
+
+  def find_list(list_name,board)
+    board.lists.find { |l| l.name==list_name }
+  end
+
+  def list_form
+    print "Name: "
+    new_name_list = gets.chomp
+    {name: new_name_list}
   end
 
   def save
     File.write(@filename, @boards.to_json)
+  end
+
+  def update_card
+
   end
 end
 

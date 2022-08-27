@@ -14,7 +14,11 @@ class Lists
     cards.map { |card_hash| Cards.new(**card_hash) }
   end
 
+  def update(name:)
+    @name=name unless name.empty?
+  end
+
   def to_json(_arg)
-    { name: @name, id: @id, cards: @cards}.to_json
+    { name: @name, id: @@id_count, cards: @cards}.to_json
   end
 end

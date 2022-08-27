@@ -3,7 +3,6 @@ class Cards
   @@id_count = 0
   def initialize(id:nil, title:, members:[], labels:[], due_date:, checklist:[])
     @id = id || (@@id_count + 1)
-    @@id_count = @id
     @title = title
     @members = members
     @labels = labels
