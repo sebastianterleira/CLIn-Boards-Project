@@ -1,6 +1,8 @@
 require "terminal-table"
 require "json"
 require_relative "boards"
+require_relative "cards"
+require_relative "lists"
 
 class ClinBoards
   def initialize(filename)
@@ -103,6 +105,7 @@ class ClinBoards
       end
     end
   end
+
   def delete_board(id)
     board_selected=find_card(id)
     @boards.delete(board_selected)
@@ -137,16 +140,18 @@ class ClinBoards
       File.write(@filename, @boards.to_json)
     end
 
-  def cards_form(board)
-    puts "Select a list: "
-    # puts ""
-    list_menu = []
-    board.lists.each do |list| 
-      list_menu.push(list.name)
+    def list_form(board)
+      puts "Select a list: "
+      list_menu = []
+      board.lists.each do |list| 
+        list_menu.push(list.name)
+      end
+      puts "#{list_menu.join(" | ")}"
+      print "> "
+      input = gets.chomp
     end
-    puts "#{list_menu.join(" | ")}"
-    print "> "
-    input = gets.chomp
+
+  def cards_form(board)
     print "Tittle: "
     title = gets.chomp
     print "Members: "
@@ -159,14 +164,20 @@ class ClinBoards
   end
 
   def create_card(board)
+    input = list_form(board)
     card_hash = cards_form(board)
+    list = find_list(input, board)
     new_card = Cards.new(**card_hash)
-    board.cards.push(new_card)
+    list.cards.push(new_card)
     File.write(@filename, @boards.to_json)
   end
 
   def find_card(id)
     @boards.find { |e| e.id==id}
+  end
+
+  def find_list(list_name, board)
+    board.lists.find {|l| l.name == list_name}
   end
 
   def save
@@ -181,3 +192,26 @@ filename = "store.json" if filename.nil?
 
 app = ClinBoards.new(filename)
 app.start
+
+
+# <Boards:0x00007ff67e621840 
+#   @id=1, 
+#   @name="Extended - CLIn Boards", 
+#   @description="Task management for the last extended", 
+#   @lists=[
+#     <Lists:0x00007ff67e621728 
+#       @id=1, 
+#       @name="Todo", 
+#       @cards=[
+#         <Cards:0x00007ff67e621610 
+#           @id=1, 
+#           @title="Check terminal-table gem", 
+#           @members=["Diego", "Deyvi", "Wences"], 
+#           @labels=["investigate"], 
+#           @due_date="2020-11-19", 
+#           @checklist=[
+#             {:title=>"Add gem to gemfile", :completed=>true}, 
+#             {:title=>"Make an example and share with the team", :completed=>false}, 
+#             {:title=>"Ask if this feature is mandatory", :completed=>true}
+#           ]
+#         >,
