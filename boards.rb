@@ -29,6 +29,6 @@ class Boards
   end
 
   def to_json(_arg)
-    { name: @name, description:@description, id: @@id_count, lists: @lists}.to_json
+    { name: @name, description:@description, id: @id, lists: @lists}.to_json
   end
 end
