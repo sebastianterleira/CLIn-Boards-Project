@@ -93,7 +93,7 @@ class ClinBoards
       case action
       when "create-list" then puts "create-list!"
       when "update-list" then update_list(arg,board)
-      when "delete-list" then puts "Udelete-list! #{arg}"
+      when "delete-list" then delete_list(arg,board)
       when "create-card" then puts "create-card!"
       when "checklist" then puts "create-card! #{arg}"
       when "update-card" then puts "udate-card! #{arg}"
@@ -128,6 +128,12 @@ class ClinBoards
     @boards.find { |e| e.id==id}
   end
 
+  def delete_list(list_name,board)
+    list_selected=find_list(list_name.capitalize,board)
+    board.lists.delete(list_selected)
+    save
+  end
+
   def update_list(list_name,board)
     list_selected=find_list(list_name.capitalize,board)
     new_name_list=list_form
@@ -149,9 +155,6 @@ class ClinBoards
     File.write(@filename, @boards.to_json)
   end
 
-  def update_card
-
-  end
 end
 
 filename = ARGV.shift
