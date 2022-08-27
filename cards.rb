@@ -17,6 +17,7 @@ class Cards
     [@id, @title, @members.join(", "), @labels.join(", "), @due_date, "#{count}/#{@checklist.size}"]
   end
   def to_json(_arg)
+
     { title: @title, members: @members, id: @id, labels: @labels, due_date: @due_date, checklist: @checklist}.to_json
   end
 end
