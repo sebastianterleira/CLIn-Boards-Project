@@ -3,6 +3,7 @@ require_relative "lists"
 
 class Boards
   attr_reader :id, :lists
+  attr_accessor :lists
 
   @@id_count = 0
 
@@ -29,6 +30,7 @@ class Boards
   end
 
   def to_json(_arg)
+
     { name: @name, description:@description, id: @id, lists: @lists}.to_json
   end
 end

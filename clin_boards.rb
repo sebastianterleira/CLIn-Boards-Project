@@ -1,6 +1,8 @@
 require "terminal-table"
 require "json"
 require_relative "boards"
+require_relative "cards"
+require_relative "lists"
 
 class ClinBoards
   def initialize(filename)
@@ -33,8 +35,9 @@ class ClinBoards
   def create_board(boards)
     board_hash = board_form
     new_board = Boards.new(**board_hash)
-    boards.push(new_board)
+    @boards.push(new_board)
     File.write(@filename, boards.to_json)
+    p new_board
   end
 
   def board_form
@@ -90,10 +93,10 @@ class ClinBoards
                           ["create-card", "checklist ID", "update-card ID", "delete-card ID"], ["back"]])
 
       case action
-      when "create-list" then puts "create-list!"
+      when "create-list" then create_list(board)
       when "update-list" then puts "update-list! #{arg}"
       when "delete-list" then puts "Udelete-list! #{arg}"
-      when "create-card" then puts "create-card!"
+      when "create-card" then create_card(board)
       when "checklist" then show_checklist(arg, board)
       when "update-card" then puts "udate-card! #{arg}"
       when "delete-card" then puts "delete-card! #{arg}"
@@ -102,6 +105,7 @@ class ClinBoards
       end
     end
   end
+
   def delete_board(id)
     board_selected=find_card(id)
     @boards.delete(board_selected)
@@ -123,8 +127,57 @@ class ClinBoards
     { name: name, description: description }
   end
 
+  def list_form
+    print "Name: "
+    name = gets.chomp
+    { name: name }
+  end
+
+    def create_list(board)
+      list_hash = list_form
+      new_list = Lists.new(**list_hash)
+      board.lists.push(new_list)
+      File.write(@filename, @boards.to_json)
+    end
+
+    def list_form(board)
+      puts "Select a list: "
+      list_menu = []
+      board.lists.each do |list| 
+        list_menu.push(list.name)
+      end
+      puts "#{list_menu.join(" | ")}"
+      print "> "
+      input = gets.chomp
+    end
+
+  def cards_form(board)
+    print "Tittle: "
+    title = gets.chomp
+    print "Members: "
+    menbers = gets.chomp.split(",").map(&:strip)
+    print "Labels: "
+    labels = gets.chomp.split(",").map(&:strip)
+    print "Due Date:"
+    due_date = gets.chomp
+    { title: title, members: menbers, labels: labels, due_date: due_date }
+  end
+
+  def create_card(board)
+    input = list_form(board)
+    card_hash = cards_form(board)
+    list = find_list(input, board)
+    new_card = Cards.new(**card_hash)
+    list.cards.push(new_card)
+    File.write(@filename, @boards.to_json)
+  end
+
   def find_card(id)
     @boards.find { |e| e.id==id}
+  end
+
+  def find_list(list_name, board)
+    board.lists.find {|l| l.name == list_name}
   end
 
   def save
