@@ -1,10 +1,10 @@
 require_relative "cards"
 require_relative "cards"
 class Lists
-  attr_reader :id, :name, :cards
+  attr_reader :id, :name, :cards 
   @@id_count = 0
-  def initialize(id:nil, name:, cards:[])
-    @id = id ? id : @@id_count + 1
+  def initialize(name:, id:nil, cards:[])
+    @id = id || (@@id_count + 1)
     @@id_count = @id
     @name = name
     @cards = load_cards(cards)

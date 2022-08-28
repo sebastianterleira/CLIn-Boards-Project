@@ -1,6 +1,7 @@
 require "terminal-table"
 require "json"
 require_relative "boards"
+
 class ClinBoards
   def initialize(filename)
     @filename = filename
@@ -27,8 +28,9 @@ class ClinBoards
   def create_board(boards)
     board_hash = board_form
     new_board = Boards.new(**board_hash)
-    boards.push(new_board)
+    @boards.push(new_board)
     File.write(@filename, boards.to_json)
+    p new_board
   end
   def board_form
     print "Name: "
@@ -75,11 +77,11 @@ class ClinBoards
                          [["create-list", "update-list LISTNAME", "delete-list LISTNAME"],
                           ["create-card", "checklist ID", "update-card ID", "delete-card ID"], ["back"]])
       case action
-      when "create-list" then puts "create-list!"
+      when "create-list" then create_list(board)
       when "update-list" then update_list(arg,board)
       when "delete-list" then delete_list(arg,board)
-      when "create-card" then puts "create-card!"
-      when "checklist" then puts "create-card! #{arg}"
+      when "create-card" then create_card(board)
+      when "checklist" then show_checklist(arg, board)
       when "update-card" then update_card(arg,board)
       when "delete-card" then delete_card(arg,board)
       else
@@ -87,6 +89,7 @@ class ClinBoards
       end
     end
   end
+
   def delete_board(id)
     board_selected=find_board(id)
     @boards.delete(board_selected)
@@ -105,6 +108,7 @@ class ClinBoards
     description = gets.chomp
     { name: name, description: description }
   end
+
   def find_board(id)
     @boards.find { |e| e.id==id}
   end
@@ -112,6 +116,63 @@ class ClinBoards
     list_selected=find_list(list_name.capitalize,board)
     board.lists.delete(list_selected)
     save
+  end
+
+  def list_form
+    print "Name: "
+    name = gets.chomp
+    { name: name }
+  end
+
+    def create_list(board)
+      list_hash = list_form
+      new_list = Lists.new(**list_hash)
+      board.lists.push(new_list)
+      File.write(@filename, @boards.to_json)
+    end
+
+    def list_form(board)
+      puts "Select a list: "
+      list_menu = []
+      board.lists.each do |list| 
+        list_menu.push(list.name)
+      end
+      puts "#{list_menu.join(" | ")}"
+      print "> "
+      input = gets.chomp
+    end
+
+  def cards_form(board)
+    print "Tittle: "
+    title = gets.chomp
+    print "Members: "
+    menbers = gets.chomp.split(",").map(&:strip)
+    print "Labels: "
+    labels = gets.chomp.split(",").map(&:strip)
+    print "Due Date:"
+    due_date = gets.chomp
+    { title: title, members: menbers, labels: labels, due_date: due_date }
+  end
+
+  def create_card(board)
+    input = list_form(board)
+    card_hash = cards_form(board)
+    list = find_list(input, board)
+    new_card = Cards.new(**card_hash)
+    list.cards.push(new_card)
+    File.write(@filename, @boards.to_json)
+  end
+
+  def find_card(id)
+    @boards.find { |e| e.id==id}
+  end
+
+  def find_list(list_name, board)
+    board.lists.find {|l| l.name == list_name}
+  end
+
+  def save
+    File.write(@filename, @boards.to_json)
   end
   def update_list(list_name,board)
     list_selected=find_list(list_name.capitalize,board)
