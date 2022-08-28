@@ -30,7 +30,6 @@ class ClinBoards
     new_board = Boards.new(**board_hash)
     @boards.push(new_board)
     File.write(@filename, boards.to_json)
-    p new_board
   end
   def board_form
     print "Name: "
@@ -49,11 +48,13 @@ class ClinBoards
       puts "#{message[i]}#{options[i].join(' | ')}"
     end
     print "> "
-    action, arg = gets.chomp.split
+    action, *arg = gets.chomp.split
+    arg = arg.join(" ")
     arg = "" if arg.nil?
     arg = arg.to_i if arg.match(/\d/)
     [action, arg]
   end
+
   def print_table(list:, title:, headings:)
     table = Terminal::Table.new
     table.title = title
@@ -76,6 +77,8 @@ class ClinBoards
       action, arg = menu(["List options: ", "Card options: ", ""],
                          [["create-list", "update-list LISTNAME", "delete-list LISTNAME"],
                           ["create-card", "checklist ID", "update-card ID", "delete-card ID"], ["back"]])
+      
+      p arg
       case action
       when "create-list" then create_list(board)
       when "update-list" then update_list(arg,board)
@@ -118,12 +121,6 @@ class ClinBoards
     save
   end
 
-  def list_form
-    print "Name: "
-    name = gets.chomp
-    { name: name }
-  end
-
     def create_list(board)
       list_hash = list_form
       new_list = Lists.new(**list_hash)
@@ -131,7 +128,7 @@ class ClinBoards
       File.write(@filename, @boards.to_json)
     end
 
-    def list_form(board)
+    def list_card(board)
       puts "Select a list: "
       list_menu = []
       board.lists.each do |list| 
@@ -155,9 +152,9 @@ class ClinBoards
   end
 
   def create_card(board)
-    input = list_form(board)
+    input = list_card(board)
     card_hash = cards_form(board)
-    list = find_list(input, board)
+    list = find_list(input.capitalize, board)
     new_card = Cards.new(**card_hash)
     list.cards.push(new_card)
     File.write(@filename, @boards.to_json)
@@ -168,7 +165,7 @@ class ClinBoards
   end
 
   def find_list(list_name, board)
-    board.lists.find {|l| l.name == list_name}
+    board.lists.find {|l| l.name.capitalize == list_name}
   end
 
   def save
@@ -177,19 +174,20 @@ class ClinBoards
   def update_list(list_name,board)
     list_selected=find_list(list_name.capitalize,board)
     new_name_list=list_form
+    p "call inea 182"
     list_selected.update(**new_name_list)
     save
   end
-  def find_list(list_name,board)
-    board.lists.find { |l| l.name==list_name }
-  end
+
   def list_form
+    p "linea 190"
     print "Name: "
-    new_name_list = gets.chomp
-    {name: new_name_list}
+    name = gets.chomp
+    {name: name}
   end
   def update_card(card_id,board)
     list_input=list_form
+    p "call linea 196"
     list_selected=find_list(list_input,board)
     new_card_details=card_details_form
     card_selected=find_card(card_id,list_selected)
@@ -199,8 +197,6 @@ class ClinBoards
   def delete_card(card_id,board)
     list_with_card=find_list_by_card_id(card_id,board)
     card_selected=find_card_by_id_without_list(card_id,board)
-    p list_with_card
-    p card_selected
     list_with_card.cards.delete(card_selected)
     save
   end
@@ -228,14 +224,7 @@ class ClinBoards
   def find_card(card_id,list)
     list.cards.find { |c| c.id==card_id }
   end
-  def list_form
-    puts "Select a list: "
-    puts "Todo | In Progress | Code Review | Done "
-    print "> "
-    list = gets.chomp.capitalize
-    { list: list }
-    p list
-  end
+ 
   def card_details_form
     print "Title: "
     title = gets.chomp
